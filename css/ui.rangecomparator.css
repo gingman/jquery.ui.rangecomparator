@@ -13,9 +13,31 @@
 }
 
 .ui-rangecomparator-range {
-	padding: 2px 0px 2px 0px;
-	margin-top: 1px;
-	margin-bottom: 1px;
+	border-radius: 5px;
+	font-weight: bold;
+}
+
+/*.ui-rangecomparator-range.first {
+	margin-top: 2px !important;
+	margin-bottom: 2px !important;
+}
+
+.ui-rangecomparator-range.last {
+	margin-bottom: 2px !important;
+}*/
+
+.ui-rangecomparator-range .label {
+	font-size: 10px;
 	border: 1px solid #666;
 	border-radius: 5px;
+	height: 12px;
+	line-height: 10px;
+	padding: 1px;
+}
+
+.ui-rangecomparator-range.odd {
+	background: url("../img/salary-scale-odd-bg.png") repeat #FFF !important;
+}
+.ui-rangecomparator-range.even {
+	background: url("../img/salary-scale-even-bg.png") repeat #FFF !important;
 }
