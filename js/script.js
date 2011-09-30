@@ -3,13 +3,13 @@
 */
 (function($){
 	$("#salary-scale").rangecomparator({
+		width: "570px",
 		rangeStyle: {
-			height: "18px"
+			height: "16px"
 		},
 		ranges: {
-			"Nationally": [125000,150000],
-			"Selected Locations": [130000, 180000],
-			"Boston, MA": [155555, 200000],
+			"Nationally": [132000, 160000],
+			"Selected Locations": [156000, 250000]
 		}
 	});
 })(jQuery); 

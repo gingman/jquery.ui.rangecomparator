@@ -67,10 +67,22 @@
           jEl = $(self.element),
           i = 0,
           ranges = self.options.ranges;
-      for (var key in ranges) {
-        self._addRange(key, ranges[key][0], ranges[key][1], i);
-        i++;
-      }
+
+      if (typeof(ranges) === "undefined" || ranges === null) {
+        jEl.css({
+          height: "16px",
+          color: "#666",
+          padding: "5px",
+          background: "#DDD"
+        });
+        jEl.html("No ranges provided.");
+      }else{
+        for (var key in ranges) {
+          self._addRange(key, ranges[key][0], ranges[key][1], i);
+          i++;
+        }
+      };
+
       self._trigger("rangesAdded", null, self);
     },
     _rangeLength: function() {
@@ -122,7 +134,7 @@
         backgroundColor: rOptions.label.backgroundColor,
         color: rOptions.label.color,
         position: "absolute",
-        left: "-20px",
+        left: "-25px",
         top: (range.height() - 11) / 2 + "px"
       });
       minimum_label.addClass("label minimum-label");
@@ -131,7 +143,7 @@
         backgroundColor: rOptions.label.backgroundColor,
         color: rOptions.label.color,
         position: "absolute",
-        left: range.width() - 20 + "px",
+        left: range.width() - 10 + "px",
         top: (range.height() - 11) / 2 + "px"
       });
       maximum_label.addClass("label maximum-label");
@@ -237,8 +249,14 @@
         num = num.substring(0,num.length-(4*i+3))+','+
         num.substring(num.length-(4*i+3));
       }
-        
-      return (((sign)?'':'-') + '$' + num.split(",")[0] + "K");
+      var first_part_of_number = parseInt(num.split(",")[0], 10);
+      var last_part_of_number = num.split(",")[1].toString().charAt(0);
+      var ending = "";
+      if (last_part_of_number !== "0") {
+        ending = "." + last_part_of_number;
+      }
+
+      return (((sign)?'':'-') + '$' + first_part_of_number + ending + "K");
     },
     _calculateExtraPositioning: function(p_NumberOfRanges) {
       var self = this,
