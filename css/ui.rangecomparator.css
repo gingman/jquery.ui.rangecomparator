@@ -36,8 +36,8 @@
 }
 
 .ui-rangecomparator-range.odd {
-	background: url("../img/salary-scale-odd-bg.png") repeat #FFF !important;
+	background: url("../img/salary-scale-odd-bg.png") repeat !important;
 }
 .ui-rangecomparator-range.even {
-	background: url("../img/salary-scale-even-bg.png") repeat #FFF !important;
+	background: url("../img/salary-scale-even-bg.png") repeat !important;
 }

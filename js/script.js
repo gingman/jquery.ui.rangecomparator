@@ -5,12 +5,32 @@
 	$("#salary-scale").rangecomparator({
 		width: "570px",
 		rangeStyle: {
-			height: "16px"
+			height: "16px",
+			minWidth: "170px"
 		},
-		ranges: {
-			"Nationally": [132000, 160000],
-			"Selected Locations": [156000, 250000]
+		ranges: [{
+			legend: {
+				name: "Nationally"
+			},
+			style: {
+				backgroundColor: "#83C9E9"	
+			},
+			minimum: 132000,
+			maximum: 500000
+		},{
+			legend: {
+				name: "Selected Locations"
+			},
+			style: {
+				backgroundColor: "#F86C1F"
+			},
+			minimum: 156000,
+			maximum: 250000
+		}],
+		rangesAdded: function(p_Event, p_Self) {
+			$(p_Self.element).find(".tooltip").qtip();
 		}
+
 	});
 })(jQuery); 
 

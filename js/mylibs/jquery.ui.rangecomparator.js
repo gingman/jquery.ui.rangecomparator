@@ -2,7 +2,7 @@
   $.widget("ui.rangecomparator", {
     // Scale is 0 - 100 to represent 0 to 100%
     options: { 
-      ranges: null,
+      ranges: [],
       width: "800px",  
       color: "#fff",
       extraCls: "",
@@ -45,30 +45,37 @@
       self.options.ranges = self.options.ranges ? self.options.ranges : jEl.data("ranges");
 
       // We need to calculate the extra space needed for each range bar which means the padding, margin and the size of the border
-      var extra_height = self._calculateExtraPositioning(self._rangeLength());
+      var extra_height = self._calculateExtraPositioning(self.options.ranges.length);
 
-      self.options.height = ((parseInt(o.rangeStyle.height, 10) * self._rangeLength()) + (extra_height)) + "px";
+      self.options.height = ((parseInt(o.rangeStyle.height, 10) * self.options.ranges.length) + (extra_height)) + "px";
 
-      // Add basic class and styling
-      jEl.addClass("ui-widget ui-rangecomparator").css({
+      self.scale = $("<div />", {
+        "class": "ui-widget ui-rangecomparator"
+      });
+
+      self.scale.css({
         height: o.height,
         width: o.width,
         color: o.color
       });
 
-      if (o.extraCls !== "") { jEl.addClass(o.extraCls); }
+      jEl.append(self.scale);
+
+
+      if (o.extraCls !== "") { self.scale.addClass(o.extraCls); }
 
       self._addLabels();
       self._addRanges();
+      self._addLegend();
       self._trigger("initialized", null, self);
     },
     _addRanges: function() {
       var self = this,
-          jEl = $(self.element),
+          jEl = $(self.scale),
           i = 0,
           ranges = self.options.ranges;
 
-      if (typeof(ranges) === "undefined" || ranges === null) {
+      if (typeof(ranges) === "undefined" || ranges === null || ranges.length === 0) {
         jEl.css({
           height: "16px",
           color: "#666",
@@ -77,45 +84,36 @@
         });
         jEl.html("No ranges provided.");
       }else{
-        for (var key in ranges) {
-          self._addRange(key, ranges[key][0], ranges[key][1], i);
-          i++;
-        }
-      };
+        $.each(ranges, function(i, range) {
+          self._addRange(range, i);
+        });
+      }
 
       self._trigger("rangesAdded", null, self);
     },
-    _rangeLength: function() {
-      var self = this,
-             i = 0;
-      for (var key in self.options.ranges) {
-        i++;
-      }
-      return i;
-    },
-    _addRange: function(name, minimum, maximum, index) {
+    _addRange: function(p_RangeInfo, index) {
       var self = this,
           rOptions = self.options.rangeStyle,
-          jEl = $(self.element);
-      var new_position = self._calculatePositioning(minimum, maximum, index);
+          jEl = $(self.scale);
+      var new_position = self._calculatePositioning(p_RangeInfo.minimum, p_RangeInfo.maximum, index);
 
       var extraCls = "";
       if (index === 0) {
         extraCls = "first";
-      };
-      if (index === (self._rangeLength() - 1)) {
+      }
+      if (index === (self.options.ranges.length - 1)) {
         extraCls = "last";
-      };
+      }
 
-      var range = $("<div />", {text: name}).css({
+      var range = $("<div />").css({
         height: rOptions.height,
-        backgroundColor: rOptions.backgroundColor,
+        backgroundColor: p_RangeInfo.style.backgroundColor,
         color: rOptions.color,
         marginTop: rOptions.marginTop,
         marginBottom: rOptions.marginBottom,
         paddingTop: rOptions.paddingTop,
         paddingBottom: rOptions.paddingBottom,
-        border: rOptions.borderWidth + " solid #666",
+        border: rOptions.borderWidth + " solid #DDDs",
         position: "absolute",
         textAlign: "center",
         width: new_position.width,
@@ -126,11 +124,16 @@
       }).addClass("ui-rangecomparator-range");
 
       // Add stripe
-      (index % 2 === 0) ? range.addClass("even") : range.addClass("odd");
+      // if (index % 2 === 0) {
+      //   range.addClass("even"); 
+      // }else{
+      //   range.addClass("odd");
+      // }
+
       range.addClass(extraCls);
       jEl.append(range);
 
-      var minimum_label = $("<div />", {text: self._formatMoney(minimum)}).css({
+      var minimum_label = $("<div />", {text: self._formatMoney(p_RangeInfo.minimum)}).css({
         backgroundColor: rOptions.label.backgroundColor,
         color: rOptions.label.color,
         position: "absolute",
@@ -139,7 +142,7 @@
       });
       minimum_label.addClass("label minimum-label");
 
-      var maximum_label = $("<div />", {text: self._formatMoney(maximum)}).css({
+      var maximum_label = $("<div />", {text: self._formatMoney(p_RangeInfo.maximum)}).css({
         backgroundColor: rOptions.label.backgroundColor,
         color: rOptions.label.color,
         position: "absolute",
@@ -150,6 +153,28 @@
 
       range.append(minimum_label);
       range.append(maximum_label);
+    },
+    _addLegend: function() {
+      var self = this,
+          jEl  = $(self.element),
+          ranges = self.options.ranges;
+      var legend = $("<table />", {
+        style: "margin-top: 10px;"
+      });
+      $.each(ranges, function(i, range) {
+        var row = $("<tr />");
+        var color_cell = $("<td />", {
+          style: "width: 15px; height: 15px; background-color: " + range.style.backgroundColor
+        });
+        var name_cell = $("<td />", {
+          text: range.legend.name,
+          style: "color: #666"
+        });
+        row.append(color_cell);
+        row.append(name_cell);
+        legend.append(row);
+      });
+      jEl.append(legend);
     },
     _calculatePositioning: function(minimum, maximum, index) {
       var self = this;
@@ -166,26 +191,42 @@
         width: (max-min) + "%"
       };
     },
+    /*
+      Get the name for a given range object
+    */
+    _getRangeName: function(p_RangeName) {
+      if (typeof(p_RangeName) == "function") {
+        return p_RangeName();
+      }else{
+        return p_RangeName;
+      }
+    },
+    /*
+      Gather the minimum and maximum of all the ranges passed in parameters
+      Ex: Range1 = 10000-15000
+          Range2 = 12000-20000
+          Output: {min: 10000, max: 20000}
+    */
     _getMinimumMaximum: function() {
       var self = this,
           ranges = self.options.ranges,
           min = null,
           max = null;
-      $.each(ranges, function(i, val){
+      $.each(ranges, function(i, range){
         if (min) {
-          if (val[0] < min) {
-            min = val[0];
+          if (range.minimum < min) {
+            min = range.minimum;
           }
         }else{
-          min = val[0];
+          min = range.minimum;
         }
 
         if (max) {
-          if (val[1] > max) {
-            max = val[1];
+          if (range.maximum > max) {
+            max = range.maximum;
           }
         }else{
-          max = val[1];
+          max = range.maximum;
         }
       });
       return {
@@ -193,16 +234,22 @@
         max: max
       };
     },
+    /*
+      Generate two read only labels for background display
+    */
     _addLabels: function() {
       var self = this;
       var range_comparator = $(self.element);
       self._addLeftLabel();
       self._addRightLabel();
     },
+    /*
+      Generate a left label using defined in rightLabel configuration
+    */
     _addRightLabel: function() {
       var self = this,
              o = self.options,
-           jEl = $(self.element);
+           jEl = $(self.scale);
       var rightLabel = $("<div />", {
         text: o.rightLabel.text
       });
@@ -216,21 +263,30 @@
       });
       jEl.append(rightLabel);
     },
+    /*
+      Generate a label using defined in leftLabel configuration
+    */
     _addLeftLabel: function() {
       var self = this,
-             o = self.options;
+          o = self.options,
+          middleHeight = self._calculateMiddleHeight();
       var leftLabel = $("<div />", {
-        text: o.leftLabel.text,
-        style: "position: absolute; top:" + self._calculateMiddleHeight() + "; left: 5px;"
+        text: o.leftLabel.text
       });
       leftLabel.css({
         color: o.leftLabel.style.color,
         position: "absolute",
-        top: self._calculateMiddleHeight(),
+        top: middleHeight,
         left: "5px"
       });
-      $(self.element).append(leftLabel);       
+      $(self.scale).append(leftLabel);       
     },
+    /*
+      Convert a number into a K format string
+      Examples: 100000 = $100k
+                110111 = $100.1k
+      - p_Number: Number to be converted
+    */
     _formatMoney: function(p_Number) {
       num = p_Number.toString().replace(/\$|\,/g,'');
       if(isNaN(num)) {
@@ -258,6 +314,11 @@
 
       return (((sign)?'':'-') + '$' + first_part_of_number + ending + "K");
     },
+    /*
+      Calculate extra positioning that is need by the bars. 
+      Takes into account padding, margin and borderwidth defined in rangeStyle configuration
+      - p_NumberOfRanges: Number of range you need to compare
+    */
     _calculateExtraPositioning: function(p_NumberOfRanges) {
       var self = this,
           o = self.options;
@@ -267,9 +328,13 @@
 
       return padding + margin + border;
     },
+    /*
+      Calculate the middle position of the whole range comparator
+      This is used to add label that are directly in the middle of the range comparator
+    */
     _calculateMiddleHeight: function() {
       var self = this;
-      var range_comparator = $(self.element);
+      var range_comparator = $(self.scale);
       var label_font_size = parseInt(self.options.rightLabel.style.fontSize.replace("px", ""), 10);
       return (range_comparator.height() - label_font_size) / 2 + "px";
     }
