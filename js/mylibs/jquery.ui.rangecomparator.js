@@ -41,6 +41,13 @@
             el = self.element,
             jEl = $(el);
 
+      // Init base div
+      jEl.css({
+        height: o.height,
+        width: o.width,
+        color: o.color
+      });
+
       // Let's store ranges for reuse
       self.options.ranges = self.options.ranges ? self.options.ranges : jEl.data("ranges");
 
@@ -165,20 +172,26 @@
           jEl  = $(self.element),
           ranges = self.options.ranges;
       var legend = $("<ul />", {
-        style: "margin-top: 10px; padding-left: 0px !important;"
+        style: "margin-top: 10px; padding-left: 0px !important;color: #666; font-size: 11px;"
       });
       $.each(ranges, function(i, range) {
         var row = $("<li />", {
           style: "margin-bottom: 5px; list-style-type: none;"
         });
-        var table = $("<table />");
+        var table = $("<table />", {
+          style: "width: 100%"
+        });
         var tr = $("<tr />");
         var color = $("<td />", {
           style: "width: 15px; height: 15px; border: 1px solid #DDD;"
         });
-        var name = $("<d />", {
+        var name = $("<td />", {
           style: "padding-left: 5px; color: #666;"
         });
+        var salary_range = $("<td />", {
+          text: "$" + self.number_to_currency(range.minimum) + " - $" + self.number_to_currency(range.maximum),
+          align: "right"
+        }); 
 
         name.append(self._getRangeName(range.legend.name));
 
@@ -194,6 +207,7 @@
         }
         tr.append(color);
         tr.append(name);
+        tr.append(salary_range);
         table.append(tr);
         row.append(table);
         legend.append(row);
@@ -337,8 +351,20 @@
       if (last_part_of_number !== "0") {
         ending = "." + last_part_of_number;
       }
-
-      return (((sign)?'':'-') + '$' + first_part_of_number + ending + "K");
+      var number_abreviation = num.split(",").length < 3 ? "K" : "M";
+      return (((sign)?'':'-') + '$' + first_part_of_number + ending + number_abreviation);
+    },
+    number_to_currency: function (number, options) {
+      try {
+        var delimiter = delimiter || ",";
+        var separator = separator || ".";
+        
+        var parts = number.toString().split('.');
+        parts[0] = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + delimiter);
+        return parts.join(separator);
+      } catch(e) {
+        return number;
+      }
     },
     /*
       Calculate extra positioning that is need by the bars. 

@@ -3,7 +3,7 @@
 */
 (function($){
 	$("#salary-scale").rangecomparator({
-		width: "570px",
+		width: "800px",
 		rangeStyle: {
 			height: "16px",
 			minWidth: "170px"
@@ -18,7 +18,7 @@
 				backgroundColor: "#AAA"	
 			},
 			minimum: 132000,
-			maximum: 900000
+			maximum: 1000000
 		},{
 			legend: {
 				name: function() {
@@ -31,9 +31,6 @@
 			minimum: 156000,
 			maximum: 250000
 		}],
-		rangesAdded: function(p_Event, p_Self) {
-			$(p_Self.element).find(".tooltip").qtip();
-		},
 		legendAdded: function(p_Event, p_Legend) {
 			p_Legend.find(".tooltip").qtip();
 		}
