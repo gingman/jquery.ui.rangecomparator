@@ -10,25 +10,32 @@
 		},
 		ranges: [{
 			legend: {
-				name: "Nationally"
+				name: function() {
+					return "Nationally <a href='javascript://' title='Nationally' class='tooltip'>[?]</a>"; 
+				}
 			},
 			style: {
-				backgroundColor: "#83C9E9"	
+				backgroundColor: "#AAA"	
 			},
 			minimum: 132000,
-			maximum: 500000
+			maximum: 900000
 		},{
 			legend: {
-				name: "Selected Locations"
+				name: function() {
+					return "Selected Locations <a href='javascript://' title='Selected Locations' class='tooltip'>[?]</a>"; 
+				}
 			},
 			style: {
-				backgroundColor: "#F86C1F"
+				backgroundColor: "#FFF"
 			},
 			minimum: 156000,
 			maximum: 250000
 		}],
 		rangesAdded: function(p_Event, p_Self) {
 			$(p_Self.element).find(".tooltip").qtip();
+		},
+		legendAdded: function(p_Event, p_Legend) {
+			p_Legend.find(".tooltip").qtip();
 		}
 
 	});

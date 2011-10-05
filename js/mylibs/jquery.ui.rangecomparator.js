@@ -113,7 +113,7 @@
         marginBottom: rOptions.marginBottom,
         paddingTop: rOptions.paddingTop,
         paddingBottom: rOptions.paddingBottom,
-        border: rOptions.borderWidth + " solid #DDDs",
+        border: rOptions.borderWidth + " solid #666",
         position: "absolute",
         textAlign: "center",
         width: new_position.width,
@@ -124,11 +124,15 @@
       }).addClass("ui-rangecomparator-range");
 
       // Add stripe
-      // if (index % 2 === 0) {
-      //   range.addClass("even"); 
-      // }else{
-      //   range.addClass("odd");
-      // }
+      if (index % 2 === 0) {
+        range.css({
+          background: 'url("img/salary-scale-even-bg.png") repeat ' + p_RangeInfo.style.backgroundColor
+        }); 
+      }else{
+        range.css({
+          background: 'url("img/salary-scale-odd-bg.png") repeat ' + p_RangeInfo.style.backgroundColor
+        }); 
+      }
 
       range.addClass(extraCls);
       jEl.append(range);
@@ -153,28 +157,50 @@
 
       range.append(minimum_label);
       range.append(maximum_label);
+      self._trigger("initialized", null, range);
+
     },
     _addLegend: function() {
       var self = this,
           jEl  = $(self.element),
           ranges = self.options.ranges;
-      var legend = $("<table />", {
-        style: "margin-top: 10px;"
+      var legend = $("<ul />", {
+        style: "margin-top: 10px; padding-left: 0px !important;"
       });
       $.each(ranges, function(i, range) {
-        var row = $("<tr />");
-        var color_cell = $("<td />", {
-          style: "width: 15px; height: 15px; background-color: " + range.style.backgroundColor
+        var row = $("<li />", {
+          style: "margin-bottom: 5px; list-style-type: none;"
         });
-        var name_cell = $("<td />", {
-          text: range.legend.name,
-          style: "color: #666"
+        var table = $("<table />");
+        var tr = $("<tr />");
+        var color = $("<td />", {
+          style: "width: 15px; height: 15px; border: 1px solid #DDD;"
         });
-        row.append(color_cell);
-        row.append(name_cell);
+        var name = $("<d />", {
+          style: "padding-left: 5px; color: #666;"
+        });
+
+        name.append(self._getRangeName(range.legend.name));
+
+        // Add stripe
+        if (i % 2 === 0) {
+          color.css({
+            background: 'url("img/salary-scale-even-bg.png") repeat ' + range.style.backgroundColor
+          }); 
+        }else{
+          color.css({
+            background: 'url("img/salary-scale-odd-bg.png") repeat ' + range.style.backgroundColor
+          }); 
+        }
+        tr.append(color);
+        tr.append(name);
+        table.append(tr);
+        row.append(table);
         legend.append(row);
       });
       jEl.append(legend);
+      self._trigger("legendAdded", null, legend);
+
     },
     _calculatePositioning: function(minimum, maximum, index) {
       var self = this;
