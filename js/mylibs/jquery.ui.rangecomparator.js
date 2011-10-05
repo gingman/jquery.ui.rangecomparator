@@ -114,7 +114,6 @@
 
       var range = $("<div />").css({
         height: rOptions.height,
-        backgroundColor: p_RangeInfo.style.backgroundColor,
         color: rOptions.color,
         marginTop: rOptions.marginTop,
         marginBottom: rOptions.marginBottom,
@@ -133,11 +132,11 @@
       // Add stripe
       if (index % 2 === 0) {
         range.css({
-          background: 'url("img/salary-scale-even-bg.png") repeat ' + p_RangeInfo.style.backgroundColor
+          background: 'url("img/salary-scale-even-bg.png") repeat ' + p_RangeInfo.color
         }); 
       }else{
         range.css({
-          background: 'url("img/salary-scale-odd-bg.png") repeat ' + p_RangeInfo.style.backgroundColor
+          background: 'url("img/salary-scale-odd-bg.png") repeat ' + p_RangeInfo.color
         }); 
       }
 
@@ -176,7 +175,7 @@
       });
       $.each(ranges, function(i, range) {
         var row = $("<li />", {
-          style: "margin-bottom: 5px; list-style-type: none;"
+          style: "margin-bottom: 2px; list-style-type: none;"
         });
         var table = $("<table />", {
           style: "width: 100%"
@@ -193,16 +192,16 @@
           align: "right"
         }); 
 
-        name.append(self._getRangeName(range.legend.name));
+        name.append(self._getRangeName(range.name));
 
         // Add stripe
         if (i % 2 === 0) {
           color.css({
-            background: 'url("img/salary-scale-even-bg.png") repeat ' + range.style.backgroundColor
+            background: 'url("img/salary-scale-even-bg.png") repeat ' + range.color
           }); 
         }else{
           color.css({
-            background: 'url("img/salary-scale-odd-bg.png") repeat ' + range.style.backgroundColor
+            background: 'url("img/salary-scale-odd-bg.png") repeat ' + range.color
           }); 
         }
         tr.append(color);
@@ -346,13 +345,14 @@
         num.substring(num.length-(4*i+3));
       }
       var first_part_of_number = parseInt(num.split(",")[0], 10);
-      var last_part_of_number = num.split(",")[1].toString().charAt(0);
-      var ending = "";
-      if (last_part_of_number !== "0") {
-        ending = "." + last_part_of_number;
+      var last_part_of_number = parseInt(num.split(",")[1].toString().charAt(0), 10);
+
+      if (last_part_of_number >= 5) {
+        first_part_of_number += 1;
       }
+      
       var number_abreviation = num.split(",").length < 3 ? "K" : "M";
-      return (((sign)?'':'-') + '$' + first_part_of_number + ending + number_abreviation);
+      return (((sign)?'':'-') + '$' + first_part_of_number + number_abreviation);
     },
     number_to_currency: function (number, options) {
       try {
